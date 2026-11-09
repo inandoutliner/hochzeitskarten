@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#faf6f1">
-<title>Hochzeitskarten 4000</title>
+<title>Hochzeitskarten 4001</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cormorant+Garamond:wght@600;700&family=Great+Vibes&family=Playfair+Display:wght@900&display=swap" rel="stylesheet">
@@ -124,7 +124,7 @@ nav.tabbar button[aria-selected="true"] svg { stroke-width: 2.1; }
 <body>
 <div class="app">
   <header class="top">
-    <h1 class="brand">Hochzeitskarten <small>4000</small></h1>
+    <h1 class="brand">Hochzeitskarten <small>4001</small></h1>
     <div id="sheetChips" class="sheets" role="group" aria-label="Blätter"></div>
   </header>
 
@@ -174,6 +174,15 @@ nav.tabbar button[aria-selected="true"] svg { stroke-width: 2.1; }
         <label class="check"><input type="checkbox" data-k="card.band"> Banderole zum Umlegen (eigenes Blatt)</label>
       </div>
 
+      <div class="sec" data-if="card.type=bogen">
+        <h2 class="sec-h">Blumenbogen</h2>
+        <div class="field"><span class="lbl">Bogenform</span><div class="seg" data-k="card.bogen.arch" role="group" aria-label="Bogenform"><button type="button" data-v="round">Rundbogen</button><button type="button" data-v="pointed">Spitzbogen</button></div></div>
+        <div class="field"><span class="lbl">In der Mitte</span><div class="seg" data-k="card.bogen.figure" role="group" aria-label="Figur in der Mitte"><button type="button" data-v="couple">Paar</button><button type="button" data-v="heart">Herz</button><button type="button" data-v="rings">Ringe</button><button type="button" data-v="none">Nichts</button></div></div>
+        <label class="check"><input type="checkbox" data-k="card.bogen.flowers"> Blütenrand am Bogen (geschnitten)</label>
+        <label class="check"><input type="checkbox" data-k="card.bogen.pen"> Blüten und Linien mit dem Stift</label>
+        <p class="hint">Den Himmel gestaltest du im Reiter Muster auf der Fläche „Himmel“. Die Hülle ist eine Klappkarte, oben gefalzt.</p>
+      </div>
+
       <div class="sec" data-if="card.type=popup">
         <h2 class="sec-h">Pop-up</h2>
         <div class="field"><span class="lbl">Stufen</span><div class="seg" data-k="card.pop.steps" data-num role="group" aria-label="Stufen"><button type="button" data-v="1">Eine</button><button type="button" data-v="3">Drei</button></div></div>
@@ -192,7 +201,7 @@ nav.tabbar button[aria-selected="true"] svg { stroke-width: 2.1; }
 
       <div class="sec">
         <h2 class="sec-h">Verzierung</h2>
-        <div class="field" data-if="card.type=klapp|fenster|geld|popup|lepo">
+        <div class="field" data-if="card.type=klapp|fenster|geld|popup|bogen|lepo">
           <span class="lbl">Kante an der Öffnung</span>
           <div class="seg" data-k="card.edge" role="group" aria-label="Kante"><button type="button" data-v="straight">Gerade</button><button type="button" data-v="scallop">Bögen</button><button type="button" data-v="lace">Spitze</button><button type="button" data-v="wave">Wellen</button></div>
         </div>
@@ -698,6 +707,7 @@ const CARD_TYPES = {
   klapp: { name: 'Klappkarte', hint: 'Einmal gefalzt, der Klassiker. Mit Zierkante an der Öffnung.' },
   fenster: { name: 'Fensterkarte', hint: 'Ein ausgeschnittenes Fenster in der Vorderseite. Durch das Fenster sieht man den Einleger.' },
   tor: { name: 'Torkarte', hint: 'Zwei Türen öffnen sich zur Mitte. Zwei Herzen stecken ineinander und halten die Türen zu.' },
+  bogen: { name: 'Blumenbogen', hint: 'Drei Ebenen stellen sich hintereinander auf: vorne ein Bogen mit Blüten, in der Mitte das Paar, hinten der Himmel.' },
   popup: { name: 'Pop-up-Karte', hint: 'Beim Aufklappen stellt sich eine Stufe mit Herz, Ringen oder Namensschild auf.' },
   geld: { name: 'Geldgeschenk', hint: 'Klappkarte mit Eckschlitzen für Geldschein oder Gutschein und einer Tasche mit Herzkerbe.' },
   lepo: { name: 'Leporello', hint: 'Zickzack gefalzt, drei oder vier Felder. Platz für eine kleine Geschichte.' },
@@ -906,9 +916,9 @@ function buildCard(c) {
   let card;
   if (t === 'tor') card = gateCard(w, h, c.gate.lock);
   else if (t === 'lepo') card = lepoCard(w, h, c.lepo.n, c.edge);
-  else if (t === 'popup') card = foldCard('card', 'Hülle', w, h, 'top', c.edge);
+  else if (t === 'popup' || t === 'bogen') card = foldCard('card', 'Hülle', w, h, 'top', c.edge);
   else card = foldCard('card', 'Karte', w, h, c.fold, c.edge);
-  card.name = t === 'popup' ? 'Hülle' : 'Karte';
+  card.name = t === 'popup' || t === 'bogen' ? 'Hülle' : 'Karte';
   const front = card.panels.find((p) => p.id === 'front' || p.id === 'p1');
   // Zierrahmen auf der Vorderseite
   if (c.frame && c.frame !== 'none' && front) card.fixedPen.push(...frameLines(front, c.edge && c.edge !== 'straight' ? 10 : 6, c.frame, 3).map((L) => ({ L, role: 'frame' })));
@@ -919,7 +929,8 @@ function buildCard(c) {
   }
   out.push(card);
   if (t === 'popup') { const P = popupSheet(w, h, c.pop.steps, c.pop.figure); if (P.figPoly && c.pop.contour) { const o = offsetPoly(P.figPoly, -1.6), L = ptsToFlat(o); L.push(o[0][0], o[0][1]); P.fixedPen.push({ L, role: 'frame' }); } out.push(P); }
-  const needInsert = t === 'geld' || (c.insert && t !== 'popup' && t !== 'lepo');
+  if (t === 'bogen') out.push(archSheet(w, h, c.bogen));
+  const needInsert = t === 'geld' || (c.insert && t !== 'popup' && t !== 'lepo' && t !== 'bogen');
   if (needInsert) {
     const I = t === 'tor' ? insertSheet(w, h, 'side', true) : insertSheet(w, h, c.fold, false);
     if (winLocal) { // wo das Fenster auf dem Einleger liegt
@@ -1133,10 +1144,11 @@ function composeSheet(S, D, st) {
   const geoKey = JSON.stringify([S.outline, S.holes, S.slits, S.noPen || null]);
   const paper = memo('paper' + geoKey, () => paperMask(S));
   const panelOf = (id) => S.panels.find((p) => p.id === id) || S.panels[0];
+  const exClip = (P) => (P.exclude ? memo('ex' + JSON.stringify(P.exclude.map((q) => [q.length, q[0]])), () => { const fs = P.exclude.map((q) => polyRaster(q, 4)); return (x, y) => fs.some((f) => f(x, y)); }) : null);
   const inClip = (P) => (P.clip ? memo('clip' + JSON.stringify(P.clip.slice(0, 3)) + P.clip.length, () => polyRaster(P.clip, 4)) : null);
   // 1 Stift-Schrift
   const texts = [];
-  for (const t of D.texts) { const P = panelOf(t.panel); if (!P || !String(t.text).trim()) continue; const r = placeText(t, P); if (r.shrunk) info.shrunk.push(t.text.split('\n')[0]); texts.push({ lines: mapFlatLines(P, r.lines), pen: t.pen, gap: t.gap }); }
+  for (const t of D.texts) { const P = panelOf(t.panel); if (!P || !String(t.text).trim()) continue; const r = placeText(t, P); if (r.shrunk) info.shrunk.push(t.text.split('\n')[0]); const ci = inClip(P), ce = exClip(P); texts.push({ lines: ci || ce ? clipFlat(mapFlatLines(P, r.lines), (x, y) => (!ci || ci(x, y)) && !(ce && ce(x, y))) : mapFlatLines(P, r.lines), pen: t.pen, gap: t.gap }); }
   const gapLines = texts.filter((t) => t.gap).flatMap((t) => t.lines);
   const gapKey = JSON.stringify(D.texts.filter((t) => t.gap));
   const ex = gapLines.length ? memo('tx' + geoKey + gapKey, () => textMask(S, gapLines, 1.2)) : null;
@@ -1147,7 +1159,7 @@ function composeSheet(S, D, st) {
   const patKey = 'stage' + JSON.stringify([p, m, geoKey, gapKey, S.panels.map((q) => [q.id, q.w, q.h])]);
   const patPens = memo(patKey, () => { const pens = [[], []];
   if ((p && p.on) || (m && m.on && String(m.text).trim())) {
-    const P = panelOf(p.panel), clipP = inClip(P);
+    const P = panelOf(p.panel), clipP = inClip(P), exP = exClip(P);
     const reg = patternRegion(p, P);
     const mk = m && m.on && String(m.text).trim() ? memo('motif' + JSON.stringify([m.text, m.font, m.size, m.y, m.dx, m.gap, P.w, P.h, p.margin]) + (document.fonts ? document.fonts.status : ''), () => motifMask(m, P, p.margin)) : null;
     let lines;
@@ -1171,7 +1183,7 @@ function composeSheet(S, D, st) {
     }
     if (mk && m.outline) for (const L of memo('ct' + JSON.stringify([m.text, m.font, m.size, m.y, m.dx, P.w, P.h, p.margin]), () => maskContours(mk))) groups[1].push({ L, pen: m.outlinePen });
     if (p && p.on && p.shapeLine && p.shape !== 'full') { const o = offsetPoly(reg.poly, 1.2), L = ptsToFlat(o); L.push(o[0][0], o[0][1]); groups[1].push({ L, pen: p.pen }); }
-    for (const grp of groups) for (const { L, pen } of grp) { for (const c of clipFlat(mapFlatLines(P, [L]), (x, y) => okPaper(x, y) && (!clipP || clipP(x, y)))) pens[pen].push(c); }
+    for (const grp of groups) for (const { L, pen } of grp) { for (const c of clipFlat(mapFlatLines(P, [L]), (x, y) => okPaper(x, y) && (!clipP || clipP(x, y)) && !(exP && exP(x, y)))) pens[pen].push(c); }
   }
   return pens; });
   patPens.forEach((arr, i) => pens[i].push(...arr));
@@ -1191,6 +1203,122 @@ function composeSheet(S, D, st) {
 }
 
 'use strict';
+/* ===== Blumenbogen: drei Ebenen hintereinander ===== */
+// Alle Läufe eines Umrisses jenseits einer waagerechten Linie (oberhalb: below = false), jeweils mit Schnittpunkten
+function chainsBeyond(poly, yLine, below) {
+  const n = poly.length, side = (p) => (below ? p[1] > yLine : p[1] < yLine), runs = [];
+  const cross = (a, b) => { const t = (yLine - a[1]) / (b[1] - a[1]); return [a[0] + (b[0] - a[0]) * t, yLine]; };
+  for (let s = 0; s < n; s++) {
+    if (!side(poly[s]) || side(poly[(s - 1 + n) % n])) continue;
+    const run = [cross(poly[(s - 1 + n) % n], poly[s])]; let i = s;
+    for (let k = 0; k < n; k++) { run.push(poly[i]); const j = (i + 1) % n; if (!side(poly[j])) { run.push(cross(poly[i], poly[j])); break; } i = j; }
+    runs.push(run);
+  }
+  return runs;
+}
+// Teilstücke einer Strecke, die außerhalb aller freien Formen liegen (dort bleibt der Falz)
+function segOutside(a, b, polys, minLen) {
+  const L = Math.hypot(b[0] - a[0], b[1] - a[1]), n = Math.max(2, Math.ceil(L / 0.25)), out = []; let cur = null;
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, p = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t], inside = polys.some((q) => q && inPoly(p[0], p[1], q));
+    if (!inside) { if (!cur) cur = [p, p]; else cur[1] = p; } else if (cur) { out.push(cur); cur = null; }
+  }
+  if (cur) out.push(cur);
+  return out.filter(([p, q]) => Math.hypot(q[0] - p[0], q[1] - p[1]) >= (minLen || 0.8));
+}
+// Umriss mehrerer überlappender Formen über ein Raster (für die Paar-Silhouette)
+function unionOutline(draw, x0, y0, w, h) {
+  const ppm = 10, W = Math.ceil(w * ppm) + 8, H = Math.ceil(h * ppm) + 8, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d', { willReadFrequently: true }); g.setTransform(ppm, 0, 0, ppm, 4 - x0 * ppm, 4 - y0 * ppm); g.fillStyle = '#000'; draw(g);
+  const d = g.getImageData(0, 0, W, H).data, hard = new Float32Array(W * H); for (let i = 0; i < hard.length; i++) hard[i] = d[i * 4 + 3] / 255;
+  const lines = maskContours({ w: W, h: H, ppm, hard }); if (!lines.length) return null;
+  const best = lines.reduce((a, b) => (b.length > a.length ? b : a)), pts = flatToPts(best).slice(0, -1);
+  const sm = chaikin(simplify([...pts, pts[0]], 0.08).slice(0, -1), 2, true);
+  return sm.map(([x, y]) => [x + x0 - 4 / ppm, y + y0 - 4 / ppm]);
+}
+function couplePts(cx, bottom, H) { // zwei Figuren, Hand in Hand; Breite etwa 0,62 H
+  const u = H;
+  return unionOutline((g) => {
+    const poly = (pts) => { g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(cx + x * u, bottom + y * u) : g.moveTo(cx + x * u, bottom + y * u))); g.closePath(); g.fill(); };
+    const circ = (x, y, r) => { g.beginPath(); g.arc(cx + x * u, bottom + y * u, r * u, 0, TAU); g.fill(); };
+    circ(-0.165, -0.905, 0.072); poly([[-0.19, -0.85], [-0.14, -0.85], [-0.14, -0.78], [-0.19, -0.78]]);          // Kopf, Hals
+    poly([[-0.285, -0.75], [-0.24, -0.795], [-0.09, -0.795], [-0.045, -0.75], [-0.06, -0.4], [-0.085, 0], [-0.155, 0], [-0.165, -0.36], [-0.175, 0], [-0.245, 0], [-0.27, -0.4]]); // Anzug
+    circ(0.155, -0.875, 0.066); poly([[0.13, -0.82], [0.18, -0.82], [0.18, -0.76], [0.13, -0.76]]);             // Kopf, Hals
+    poly([[0.06, -0.76], [0.25, -0.76], [0.22, -0.55], [0.36, 0], [-0.01, 0], [0.09, -0.55]]);                 // Kleid
+    poly([[-0.09, -0.585], [0.11, -0.585], [0.11, -0.53], [-0.09, -0.53]]);                                     // Hände
+    poly([[0.1, -0.93], [0.25, -0.85], [0.32, -0.5], [0.21, -0.5], [0.17, -0.75]]);                          // Schleier
+  }, cx - 0.4 * u, bottom - u, 0.85 * u, 1.05 * u);
+}
+// Halbsinus-Bögen nach außen entlang einer Kurve (Blütenrand)
+function bumpCurve(pts, pitch, amp, sign) {
+  const S = [0]; for (let i = 1; i < pts.length; i++) S.push(S[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const L = S[S.length - 1], n = Math.max(3, Math.round(L / pitch)), p = L / n, out = [];
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)]; let nx = b[1] - a[1], ny = -(b[0] - a[0]); const l = Math.hypot(nx, ny) || 1; nx /= l; ny /= l;
+    const off = amp * Math.abs(Math.sin(Math.PI * S[i] / p)) * sign; out.push([pts[i][0] + nx * off, pts[i][1] + ny * off]);
+  }
+  return { pts: out, centers: Array.from({ length: n }, (_, k) => (k + 0.5) * p), S };
+}
+function archCurve(kind, cx, ys, halfW) { // obere Bogenlinie von links nach rechts (y nach unten)
+  const pts = [], n = 90;
+  if (kind === 'pointed') {
+    const r = 1.3 * halfW, c = r - halfW, top = Math.sqrt(r * r - c * c);
+    for (let i = 0; i <= n / 2; i++) { const t = i / (n / 2), x = -halfW + halfW * t, y = Math.sqrt(Math.max(0, r * r - (x - c) * (x - c))); pts.push([cx + x, ys - y]); }
+    for (let i = 1; i <= n / 2; i++) { const t = i / (n / 2), x = halfW * t, y = Math.sqrt(Math.max(0, r * r - (x + c) * (x + c))); pts.push([cx + x, ys - y]); }
+    return { pts, rise: top };
+  }
+  for (let i = 0; i <= n; i++) { const a = Math.PI - Math.PI * i / n; pts.push([cx + halfW * Math.cos(a), ys - halfW * Math.sin(a)]); }
+  return { pts, rise: halfW };
+}
+function archSheet(w, h, o) {
+  const W = w - 6, F = h - 4, S = newSheet('bogen', 'Bogen-Innenteil', W, 2 * F); S.outline = rectPts(0, 0, W, 2 * F);
+  const d1 = Math.round(0.34 * F), d2 = Math.round(0.21 * F), cx = W / 2, pad = 5;
+  const bw = clamp(Math.round(0.075 * W), 7, 13), aw = Math.min(0.82 * W, W - 2 * (pad + 4)), xo0 = cx - aw / 2, xo1 = cx + aw / 2;
+  // Bogenhöhe: oben knapp unter dem Rand der Rückwand
+  const yTop = Math.max(7, 0.1 * F), probe = archCurve(o.arch, cx, 0, aw / 2), ys = yTop + probe.rise, yBase = F + 0.86 * d1;
+  const outer = archCurve(o.arch, cx, ys, aw / 2).pts, inner = archCurve(o.arch, cx, ys, aw / 2 - bw).pts;
+  let outerTop = outer, flowers = [];
+  if (o.flowers) { const b = bumpCurve(outer, 9, 2.6, 1); outerTop = b.pts; flowers = b.centers.map((s) => { let i = b.S.findIndex((v) => v >= s); if (i < 0) i = b.S.length - 1; return outer[i]; }); }
+  const archPoly = [[xo0, yBase], ...outerTop, [xo1, yBase], [xo1 - bw, yBase], ...inner.slice().reverse(), [xo0 + bw, yBase]];
+  // Pfeiler (vorne) und mittlere Stufe (Paar)
+  const pL = [xo0 - pad, xo0 + bw + pad], pR = [xo1 - bw - pad, xo1 + pad];
+  const cw = Math.min(0.36 * W, pR[0] - pL[1] - 14), cL = [cx - cw / 2, cx + cw / 2];
+  let fig = null;
+  if (o.figure && o.figure !== 'none') {
+    const bottom = F + 0.86 * d2, maxH = Math.min(2.1 * d2, bottom - (ys - 3) + 0), Hf = Math.min(maxH, 1.9 * d2);
+    if (o.figure === 'couple') fig = couplePts(cx, bottom, Math.min(Hf, cw / 0.66));
+    else { const asp = o.figure === 'heart' ? HEART_RATIO : 0.69; let fw = Math.min(0.86 * cw, Hf / asp); fig = shapePts(o.figure, cx, bottom - fw * asp / 2, fw, fw * asp); }
+  }
+  const free = [archPoly, fig];
+  // Schnitte: Stufenseiten und die freien Teile oberhalb des Falzes
+  for (const [a, b, d] of [[pL[0], pL[1], d1], [pR[0], pR[1], d1], [cL[0], cL[1], d2]]) S.slits.push([[a, F - d], [a, F + d]], [[b, F - d], [b, F + d]]);
+  for (const poly of free) if (poly) for (const run of chainsBeyond(poly, F, false)) S.slits.push(run);
+  // Falze, wo nichts frei steht
+  const fold = (a, b, kind) => { for (const [p, q] of segOutside(a, b, free)) S.scores.push({ pts: [p, q], kind }); };
+  for (const [a, b, d] of [[pL[0], pL[1], d1], [pR[0], pR[1], d1], [cL[0], cL[1], d2]]) { fold([a, F - d], [b, F - d], 'v'); fold([a, F + d], [b, F + d], 'v'); fold([a, F], [b, F], 'm'); }
+  let x = 0; for (const [a, b] of [pL, cL, pR]) { if (a > x) fold([x, F], [a, F], 'v'); x = b; } if (x < W) fold([x, F], [W, F], 'v');
+  // Flächen
+  const bb = bbox(archPoly);
+  S.panels.push({ id: 'wall', name: 'Himmel (Rückwand)', x: 0, y: 0, w: W, h: F, rot: 0, exclude: free.filter(Boolean) },
+    { id: 'floor', name: 'Boden', x: 0, y: F, w: W, h: F, rot: 0, exclude: free.filter(Boolean) },
+    { id: 'bogen', name: 'Bogen', x: bb.x0, y: bb.y0, w: bb.w, h: bb.h, rot: 0, clip: archPoly });
+  if (fig) { const fb = bbox(fig); S.panels.push({ id: 'paar', name: o.figure === 'couple' ? 'Paar' : 'Figur', x: fb.x0, y: fb.y0, w: fb.w, h: fb.h, rot: 0, clip: fig }); }
+  // Stift: Blüten auf dem Bogen, Linie in der Figur
+  if (o.pen) {
+    const mid = archCurve(o.arch, cx, ys, aw / 2 - bw / 2).pts, L = ptsToFlat(mid); S.fixedPen.push({ L, role: 'frame' });
+    const step = Math.max(1, Math.round(flowers.length / 7));
+    flowers.forEach((p, i) => { if (i % step) return; const q = [p[0] + (cx - p[0]) * (bw * 0.5) / Math.hypot(cx - p[0], ys - p[1]), p[1] + (ys - p[1]) * (bw * 0.5) / Math.hypot(cx - p[0], ys - p[1])]; for (let k = 0; k < 5; k++) { const a = TAU * k / 5, c = circlePts(q[0] + Math.cos(a) * 1.5, q[1] + Math.sin(a) * 1.5, 0.95, 14), Lc = ptsToFlat(c); Lc.push(c[0][0], c[0][1]); S.fixedPen.push({ L: Lc, role: 'frame' }); } });
+    if (fig) { // Stift setzt den Umriss unterhalb des Falzes fort, so ist die ganze Figur zu sehen
+      for (const run of chainsBeyond(fig, F, true)) S.fixedPen.push({ L: ptsToFlat(run), role: 'frame' });
+      if (o.figure === 'rings') { const fb = bbox(fig), r = fb.h / 2, oo = r * 0.55, cy = fb.y0 + fb.h / 2, cx2 = fb.x0 + fb.w / 2; for (const sx of [cx2 - oo, cx2 + oo]) for (const rr of [r - 1.6, r * 0.62]) { const c = circlePts(sx, cy, rr), Lc = ptsToFlat(c); Lc.push(c[0][0], c[0][1]); S.fixedPen.push({ L: Lc, role: 'frame' }); } }
+    }
+  }
+  S.figPoly = fig; S.archPoly = archPoly;
+  S.notes.push('Innenteil: Pfeiler und mittlere Stufe nach vorn drücken, der Bogen stellt sich mit auf. Nur die Rückwand und den Boden außerhalb der Stufen in die Hülle kleben, auch die Fläche im Bogen.');
+  return S;
+}
+
+'use strict';
 /* ===== Zustand ===== */
 const PEN_COLORS = { gold: ['Gold', '#b8913a'], silver: ['Silber', '#9ea3a8'], black: ['Schwarz', '#262626'], rose: ['Rosé', '#c47d8a'], sage: ['Salbei', '#6f8f72'], navy: ['Dunkelblau', '#22406e'], copper: ['Kupfer', '#b0643a'], white: ['Weiß', '#ffffff'] };
 const PAPERS = { mat: ['Matte 30,5 × 30,5 cm', 305, 305], a4: ['A4 · 21 × 29,7 cm', 210, 297], foto: ['Fotokarton 24 × 34 cm (5 mm Spiel)', 230, 330] };
@@ -1205,7 +1333,7 @@ const DEFAULT = {
   v: 1, tab: 'karte', sheet: 'card', drawPen: 0, paper: 'mat', paperColor: '#fbf8f3', pens: ['gold', 'black'],
   card: { type: 'fenster', format: 'a6h', w: 148, h: 105, fold: 'side', edge: 'straight', frame: 'none', framePen: 0, insert: true, envelope: false, band: false,
     win: { shape: 'heart', size: 50, y: 42, frame: true }, gate: { lock: 'heart' }, pop: { steps: 3, figure: 'heart', contour: true },
-    gift: { item: 'card', pocket: true, notch: 'heart' }, lepo: { n: 3 } },
+    gift: { item: 'card', pocket: true, notch: 'heart' }, lepo: { n: 3 }, bogen: { arch: 'round', figure: 'couple', flowers: true, pen: true } },
   band: { w: 16, lines: 11, twists: 2, phase: 0, skew: 0, taper: 0.7, smooth: 1.2, twoTone: false, backPen: 1, edgeOn: false, edgePen: 1 },
   designs: {},
 };
@@ -1230,6 +1358,8 @@ function newDesign(S) {
 function seedDefaults(sheets) { // erste schöne Ansicht
   const card = sheets.find((s) => s.key === 'card'), ins = sheets.find((s) => s.key === 'insert');
   if (card && !state.designs.card) { const d = newDesign(card); d.pattern.on = true; Object.assign(d.pattern, MOIRE_PRESETS.seide, { preset: 'seide', margin: 7 }); delete d.pattern.name; d.texts.push({ ...TEXT_PRESETS.names, panel: 'front', pen: 0, gap: true, dx: 0, dy: 0 }); state.designs.card = d; }
+  const bg = sheets.find((s) => s.key === 'bogen');
+  if (bg && !state.designs.bogen) { const d = newDesign(bg); d.pattern.on = true; Object.assign(d.pattern, MOIRE_PRESETS.ringe, { preset: 'ringe', panel: 'wall', margin: 5, dy: -6 }); delete d.pattern.name; state.designs.bogen = d; }
   if (ins && !state.designs.insert) { const d = newDesign(ins); d.texts.push({ ...TEXT_PRESETS.wish, panel: ins.panels.find((p) => p.id === 'inL') ? 'inL' : ins.panels[0].id, pen: 0, gap: true, dx: 0, dy: 0 }); state.designs.insert = d; }
 }
 
@@ -1290,7 +1420,7 @@ document.addEventListener('click', (e) => {
   if (seg && b.dataset.v !== undefined) { let v = b.dataset.v; if (seg.hasAttribute('data-num')) v = +v; setV(seg.dataset.k, v); if (seg.dataset.k === 'D.pattern.kind') curDesign().pattern.preset = ''; changed(); return; }
   if (b.dataset.type) { const c = state.card, t = b.dataset.type; c.type = t;
     const [w, h] = cardSize(c), [, pw, ph] = PAPERS[state.paper], big = Math.max(pw, ph);
-    if (t === 'popup' && h > w) c.format = 'a6q';
+    if ((t === 'popup' || t === 'bogen') && h > w) c.format = 'a6q';
     if (t === 'tor' && 2 * w + 32 > big) c.format = 'a6h';
     if (t === 'lepo' && c.lepo.n * w > big) c.format = 'q100';
     changed(); return; }
@@ -1358,7 +1488,7 @@ function renderPreview(S, R) {
   const holes = S.holes.map((h) => dPoly(h, true)).join('');
   let s = `<path d="${dPoly(S.outline, true)}${holes}" fill="${state.paperColor}" fill-rule="evenodd" stroke="none" style="filter:drop-shadow(0 1px 2px rgba(42,34,48,.18))"/>`;
   for (const g of S.guides) s += `<path d="${dPoly(g, true)}" fill="none" stroke="var(--guide)" stroke-width="1" stroke-dasharray="4 3" vector-effect="non-scaling-stroke" opacity=".7"/>`;
-  for (const P of S.panels) { if (P.id === 'figur') continue; const c = panelMap(P, P.parts ? P.w / 4 : P.w / 2, Math.min(P.h * 0.07 + 3, 8)); s += `<text x="${f2(c[0])}" y="${f2(c[1])}" text-anchor="middle" font-size="${Math.min(3.6, P.w / 16).toFixed(2)}" font-family="system-ui,sans-serif" letter-spacing=".3" fill="${dark ? '#ffffff' : '#7d6f79'}" opacity=".55">${P.name}</text>`; }
+  for (const P of S.panels) { if (P.id === 'figur' || P.clip) continue; const c = panelMap(P, P.parts ? P.w / 4 : P.w / 2, Math.min(P.h * 0.07 + 3, 8)); s += `<text x="${f2(c[0])}" y="${f2(c[1])}" text-anchor="middle" font-size="${Math.min(3.6, P.w / 16).toFixed(2)}" font-family="system-ui,sans-serif" letter-spacing=".3" fill="${dark ? '#ffffff' : '#7d6f79'}" opacity=".55">${P.name}</text>`; }
   R.pens.forEach((lines, i) => { if (lines.length) s += `<path d="${lines.map(dFlat).join('')}" fill="none" stroke="${penHex(i)}" stroke-width=".9" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>`; });
   const sc = (k) => S.scores.filter((x) => x.kind === k).map((x) => dPoly(x.pts)).join('');
   s += `<path d="${sc('m')}" fill="none" stroke="var(--score)" stroke-width="1.2" vector-effect="non-scaling-stroke"/><path d="${sc('v')}" fill="none" stroke="var(--score)" stroke-width="1.2" stroke-dasharray="5 3" vector-effect="non-scaling-stroke"/>`;
@@ -1367,8 +1497,8 @@ function renderPreview(S, R) {
 }
 function typeThumbs() {
   for (const b of $$('#types button')) {
-    const t = b.dataset.type, list = buildCard({ ...state.card, type: t, insert: false, envelope: false, band: false, format: t === 'tor' ? 'a6h' : t === 'lepo' ? 'q100' : t === 'popup' ? 'a6q' : state.card.format === 'own' ? 'a6q' : state.card.format, fold: t === 'popup' ? 'top' : state.card.fold });
-    const S = t === 'popup' ? list[1] : t === 'geld' ? list.find((x) => x.key === 'pocket') || list[0] : list[0], pad = 4, vb = [-pad, -pad, S.W + 2 * pad, S.H + 2 * pad];
+    const t = b.dataset.type, list = buildCard({ ...state.card, type: t, insert: false, envelope: false, band: false, format: t === 'tor' ? 'a6h' : t === 'lepo' ? 'q100' : t === 'popup' || t === 'bogen' ? 'a6q' : state.card.format === 'own' ? 'a6q' : state.card.format, fold: t === 'popup' || t === 'bogen' ? 'top' : state.card.fold });
+    const S = t === 'popup' || t === 'bogen' ? list[1] : t === 'geld' ? list.find((x) => x.key === 'pocket') || list[0] : list[0], pad = 4, vb = [-pad, -pad, S.W + 2 * pad, S.H + 2 * pad];
     b.querySelector('svg').setAttribute('viewBox', vb.join(' '));
     b.querySelector('svg').innerHTML = `<path d="${dPoly(S.outline, true)}${S.holes.map((h) => dPoly(h, true)).join('')}" fill="#fff" fill-rule="evenodd" stroke="#4a3f47" stroke-width="1.1" vector-effect="non-scaling-stroke"/><path d="${S.scores.map((x) => dPoly(x.pts)).join('')}${S.slits.map((l) => dPoly(l)).join('')}" fill="none" stroke="#9b3f63" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
   }
@@ -1387,7 +1517,7 @@ function sheetSVG(S, R) {
 function fileName(S) {
   const t = (state.designs.card && state.designs.card.texts[0] && state.designs.card.texts[0].text.split('\n')[0]) || 'karte';
   const slug = t.toLowerCase().replace(/[äöüß]/g, (c) => ({ ä: 'ae', ö: 'oe', ü: 'ue', ß: 'ss' }[c])).replace(/&/g, 'und').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'karte';
-  const k = { card: 'karte', insert: 'einleger', popup: 'popup', pocket: 'tasche', envelope: 'umschlag', band: 'banderole' }[S.key] || S.key;
+  const k = { card: 'karte', insert: 'einleger', popup: 'popup', bogen: 'bogen', pocket: 'tasche', envelope: 'umschlag', band: 'banderole' }[S.key] || S.key;
   return `hochzeitskarte-${slug}-${k}.svg`;
 }
 function resultFor(S) { const D = state.designs[S.key] || (state.designs[S.key] = newDesign(S)); return composeSheet(S, D, state); }
