@@ -5,3 +5,5 @@ Plotter-App für Hochzeitskarten, am Handy bedienbar: Vorlagen zum Schneiden und
 Online: https://inandoutliner.github.io/hochzeitskarten/
 
 Einstrich-Schriften: Hershey-Schriften (Dr. A. V. Hershey) und EMS-Schriften (SIL Open Font License), Hinweise und Lizenztexte stehen in der index.html.
+
+Inhaltskarte für Änderungen: [KARTE.md](KARTE.md)
